@@ -38,7 +38,9 @@
     "program_version": "程序版本：{version}",
     "python_version": "Python版本：{version}",
     "platform": "运行平台：{platform}",
-    "arguments": "运行参数：{args}"
+    "arguments": "运行参数：{args}",
+    "auto_detected_device": "自动检测到设备：{device}",
+    "auto_selected_compute_type": "自动选择计算类型 '{compute_type}'，设备：'{device}'"
   },
 
   "tasks": {
@@ -66,7 +68,9 @@
     "loaded_vad_config": "已从 {path} 加载VAD配置",
     "failed_load_vad": "无法从 {path} 加载VAD元数据：{error}",
     "using_default_vad": "使用默认VAD配置",
-    "vad_file_not_found": "在 {path} 未找到VAD元数据文件"
+    "vad_file_not_found": "在 {path} 未找到VAD元数据文件",
+    "compute_types_unavailable": "无法获取设备 {device} 支持的计算类型：{error}",
+    "no_preferred_compute_type": "未找到首选计算类型，使用默认值 '{default}'"
   },
 
   "progress": {
@@ -120,7 +124,8 @@
       "other": "使用Whisper VAD找到 {count} 个语音片段"
     },
     "registered": "已注册带进度回调的whisper_vad模型",
-    "model_not_found": "未找到模型 {model_id}，使用默认模型"
+    "model_not_found": "未找到模型 {model_id}，使用默认模型",
+    "feature_extractor_loaded": "从本地文件夹加载 WhisperFeatureExtractor: {path}"
   },
 
   "injection": {

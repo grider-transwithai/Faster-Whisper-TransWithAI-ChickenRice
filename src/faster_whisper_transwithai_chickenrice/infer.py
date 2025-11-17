@@ -19,6 +19,7 @@ from typing import Optional, Dict, Any
 
 import pyjson5
 from faster_whisper import WhisperModel
+import ctranslate2
 
 # Import our VAD injection system
 from . import inject_vad, uninject_vad, VadOptionsCompat
@@ -39,7 +40,7 @@ def parse_arguments():
                        help=_("args.model_path"))
     parser.add_argument('--device', type=str, default='auto',
                        help=_("args.device"))
-    parser.add_argument('--compute_type', type=str, default='default',
+    parser.add_argument('--compute_type', type=str, default='auto',
                        help=_("args.compute_type"))
     parser.add_argument('--overwrite', action='store_true', default=False,
                        help=_("args.overwrite"))
@@ -71,6 +72,94 @@ def parse_arguments():
     parser.add_argument('base_dirs', nargs=argparse.REMAINDER,
                        help=_("args.directories"))
     return parser.parse_args()
+
+
+def select_best_compute_type(device: str) -> str:
+    """
+    Automatically select the best compute type based on device and available types.
+
+    Preference order:
+    - bfloat16 > float16 > int8 types > float32
+    - Prefer int8 over float32 for better memory usage
+
+    Args:
+        device: The device to use ('cpu', 'cuda', or 'auto')
+
+    Returns:
+        The best available compute type for the device
+    """
+    # Determine the actual device if 'auto' is specified
+    actual_device = device
+    if device == 'auto':
+        # Check if CUDA devices are actually available
+        # First check CUDA_VISIBLE_DEVICES environment variable
+        import os
+        cuda_visible = os.environ.get('CUDA_VISIBLE_DEVICES', None)
+
+        if cuda_visible == '':
+            # Empty string means CUDA is explicitly disabled
+            actual_device = 'cpu'
+        elif cuda_visible == '-1':
+            # -1 also means CUDA is disabled
+            actual_device = 'cpu'
+        else:
+            # Try to check if CUDA is actually available by attempting to get its compute types
+            # and checking if we can actually use it
+            try:
+                # Try to get CUDA compute types
+                cuda_types = ctranslate2.get_supported_compute_types('cuda')
+                # Also check if we can import and use faster_whisper with CUDA
+                # This is a more reliable check
+                from faster_whisper import WhisperModel
+                # Try to get default device - if CUDA not available, this should fail
+                # Note: We're not actually loading a model, just checking device availability
+                if cuda_visible is not None:
+                    # CUDA_VISIBLE_DEVICES is set to specific devices
+                    # Make sure at least one device is visible
+                    visible_devices = [d.strip() for d in cuda_visible.split(',') if d.strip()]
+                    if not visible_devices:
+                        actual_device = 'cpu'
+                    else:
+                        actual_device = 'cuda'
+                else:
+                    # CUDA_VISIBLE_DEVICES not set, CUDA should be available if drivers installed
+                    actual_device = 'cuda'
+            except Exception as e:
+                # If we can't get CUDA types or import fails, fall back to CPU
+                actual_device = 'cpu'
+        logger.info(_("info.auto_detected_device").format(device=actual_device))
+
+    # Get supported compute types for the device
+    try:
+        supported_types = ctranslate2.get_supported_compute_types(actual_device)
+    except Exception as e:
+        logger.warning(_("warnings.compute_types_unavailable").format(device=actual_device, error=e))
+        # Fallback to safe default
+        return 'int8' if actual_device == 'cpu' else 'float16'
+
+    # Define preference order
+    # Prefer bfloat16 > float16 > int8 types > float32
+    preference_order = [
+        'bfloat16',
+        'float16',
+        'int16',  # For CPU
+        'int8_bfloat16',
+        'int8_float16',
+        'int8_float32',
+        'int8',
+        'float32'  # Least preferred due to memory usage
+    ]
+
+    # Select the best available type based on preference
+    for compute_type in preference_order:
+        if compute_type in supported_types:
+            logger.info(_("info.auto_selected_compute_type").format(compute_type=compute_type, device=actual_device))
+            return compute_type
+
+    # If nothing matched (shouldn't happen), use a safe default
+    default = 'int8' if actual_device == 'cpu' else 'float16'
+    logger.warning(_("warnings.no_preferred_compute_type").format(default=default))
+    return default
 
 
 @dataclass
@@ -204,7 +293,11 @@ class Inference:
         self.args = args
         self.model_name_or_path = args.model_name_or_path
         self.device = args.device
-        self.compute_type = args.compute_type
+        # Auto-select compute type if 'auto' or 'default' is specified
+        if args.compute_type in ['auto', 'default']:
+            self.compute_type = select_best_compute_type(self.device)
+        else:
+            self.compute_type = args.compute_type
         self.batch_size = 0
         self.overwrite = args.overwrite
         self.output_dir = args.output_dir
@@ -746,12 +839,11 @@ def main():
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     file_handler.setLevel(args.log_level)
 
-    # Add file handler to both the main logger and root logger to capture all logs
+    # Add file handler to the module logger
     logger.addHandler(file_handler)
-    logging.getLogger().addHandler(file_handler)
 
     logger.info(_("info.logging_to_file").format(path=log_file_path))
-    logger.info(_("info.program_version").format(version="v1.2"))
+    logger.info(_("info.program_version").format(version="v1.3"))
     logger.info(_("info.python_version").format(version=sys.version))
     logger.info(_("info.platform").format(platform=platform.platform()))
     logger.info(_("info.arguments").format(args=vars(args)))

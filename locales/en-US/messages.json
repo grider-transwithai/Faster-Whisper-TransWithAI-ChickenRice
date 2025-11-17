@@ -38,7 +38,9 @@
     "program_version": "Program version: {version}",
     "python_version": "Python version: {version}",
     "platform": "Platform: {platform}",
-    "arguments": "Arguments: {args}"
+    "arguments": "Arguments: {args}",
+    "auto_detected_device": "Auto-detected device: {device}",
+    "auto_selected_compute_type": "Auto-selected compute type '{compute_type}' for device '{device}'"
   },
 
   "tasks": {
@@ -66,7 +68,9 @@
     "loaded_vad_config": "Loaded VAD configuration from {path}",
     "failed_load_vad": "Failed to load VAD metadata from {path}: {error}",
     "using_default_vad": "Using default VAD configuration",
-    "vad_file_not_found": "VAD metadata file not found at {path}"
+    "vad_file_not_found": "VAD metadata file not found at {path}",
+    "compute_types_unavailable": "Could not get supported compute types for {device}: {error}",
+    "no_preferred_compute_type": "No preferred compute type found, using default '{default}'"
   },
 
   "progress": {
@@ -120,7 +124,8 @@
       "other": "Found {count} speech segments using Whisper VAD"
     },
     "registered": "Registered whisper_vad model with progress callback",
-    "model_not_found": "Model {model_id} not found, using default"
+    "model_not_found": "Model {model_id} not found, using default",
+    "feature_extractor_loaded": "Loaded WhisperFeatureExtractor from local folder: {path}"
   },
 
   "injection": {

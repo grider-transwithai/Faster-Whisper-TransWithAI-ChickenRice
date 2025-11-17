@@ -115,7 +115,7 @@ class WhisperVADOnnxWrapper:
                 self.feature_extractor = WhisperFeatureExtractor.from_pretrained(
                     str(local_whisper_base_path)
                 )
-                print(f"Loaded WhisperFeatureExtractor from local folder: {local_whisper_base_path}")
+                logger.info(_("vad.feature_extractor_loaded", path=local_whisper_base_path))
             except Exception as e:
                 warnings.warn(f"Failed to load from local folder, trying online: {e}")
                 self.feature_extractor = WhisperFeatureExtractor.from_pretrained(
