@@ -4,6 +4,8 @@ import os
 from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_submodules
 from pathlib import Path
 import glob
+import importlib.util
+import sysconfig
 
 block_cipher = None
 
@@ -173,9 +175,109 @@ def get_conda_cuda_libs():
 
     return cuda_binaries
 
+
+def _tree(root, prefix=''):
+    result = []
+    root = os.path.normpath(root)
+    for dirpath, _dirnames, filenames in os.walk(root):
+        rel = os.path.relpath(dirpath, root)
+        dest = prefix if rel == '.' else os.path.join(prefix, rel)
+        for filename in filenames:
+            result.append((os.path.join(dirpath, filename), dest))
+    return result
+
+
+def get_rocm_sdk_datas():
+    """Collect ROCm runtime + libraries wheels if installed (Windows only).
+
+    We bundle these into the app so end users don't need a separate ROCm install.
+    This follows Strategy A from AMD_ROCM_ACTION_PLAN.md: one libs family per ZIP.
+    """
+    if sys.platform != 'win32':
+        return []
+
+    # Build a list of site-packages roots to probe.
+    roots: list[str] = []
+    conda_prefix = os.environ.get('CONDA_PREFIX', sys.prefix)
+    roots.append(os.path.join(conda_prefix, 'Lib', 'site-packages'))
+
+    try:
+        import site
+
+        roots.extend(site.getsitepackages())
+    except Exception:
+        pass
+
+    try:
+        paths = sysconfig.get_paths()
+        roots.extend([paths.get('purelib', ''), paths.get('platlib', '')])
+    except Exception:
+        pass
+
+    # De-duplicate while preserving order.
+    seen = set()
+    uniq_roots: list[Path] = []
+    for r in roots:
+        if not r:
+            continue
+        if r in seen:
+            continue
+        seen.add(r)
+        p = Path(r)
+        if p.exists():
+            uniq_roots.append(p)
+
+    core_dir: Path | None = None
+    libs_dir: Path | None = None
+
+    for sp in uniq_roots:
+        if core_dir is None:
+            candidate = sp / '_rocm_sdk_core'
+            if candidate.exists():
+                core_dir = candidate
+
+        if libs_dir is None:
+            # Prefer a pre-renamed/custom directory if present.
+            candidate_custom = sp / '_rocm_sdk_libraries_custom'
+            if candidate_custom.exists():
+                libs_dir = candidate_custom
+            else:
+                # Otherwise pick the first installed family wheel.
+                matches = sorted(sp.glob('_rocm_sdk_libraries_*'))
+                for m in matches:
+                    if m.name == '_rocm_sdk_libraries_custom':
+                        continue
+                    libs_dir = m
+                    break
+
+    rocm_datas = []
+
+    if core_dir is not None:
+        core_bin = core_dir / 'bin'
+        if core_bin.exists():
+            print(f"Including ROCm core bin from: {core_bin}")
+            rocm_datas += _tree(str(core_bin), prefix=os.path.join('_rocm_sdk_core', 'bin'))
+        else:
+            print(f"Including ROCm core dir from: {core_dir}")
+            rocm_datas += _tree(str(core_dir), prefix='_rocm_sdk_core')
+    else:
+        print("ROCm core dir not found; skipping ROCm runtime bundling")
+
+    if libs_dir is not None:
+        # Always map into the directory name ctranslate2 expects on Windows.
+        print(f"Including ROCm libraries from: {libs_dir}")
+        rocm_datas += _tree(str(libs_dir), prefix='_rocm_sdk_libraries_custom')
+    else:
+        print("ROCm libraries dir not found; skipping ROCm libraries bundling")
+
+    return rocm_datas
+
 # Collect CUDA/cuDNN libraries
 cuda_binaries = get_conda_cuda_libs()
 binaries += cuda_binaries
+
+# Collect ROCm runtime + libraries if present (AMD HIP builds)
+datas += get_rocm_sdk_datas()
 
 # Collect CTranslate2 (the actual inference engine for faster-whisper)
 try:
@@ -183,8 +285,11 @@ try:
     datas += ctranslate2_datas
     binaries += ctranslate2_binaries
     hiddenimports += ctranslate2_hiddenimports
-except:
-    pass
+except Exception as e:
+    # Don't hard-fail builds if CTranslate2 can't be imported on the builder
+    # (e.g., missing GPU driver). The module itself is still a dependency of
+    # infer.py and should be pulled in by Analysis; this only affects extras.
+    print(f"Warning: could not collect ctranslate2 extras: {e}")
 
 # Collect faster-whisper
 faster_whisper_datas, faster_whisper_binaries, faster_whisper_hiddenimports = collect_all('faster_whisper')
@@ -302,8 +407,6 @@ hiddenimports += [
     'tokenizers.processors',
     'onnxruntime.capi',
     'onnxruntime.capi._pybind_state',
-    'onnxruntime.capi.onnxruntime_providers_cuda',  # Important for GPU
-    'onnxruntime.capi.onnxruntime_providers_tensorrt',  # TensorRT if available
     'librosa.core',
     'librosa.feature',
     'scipy.special._ufuncs_cxx',
@@ -337,6 +440,18 @@ hiddenimports += [
     'readline',  # For better console experience (if available)
     'rlcompleter',  # For tab completion in console
 ]
+
+# Add ONNX Runtime provider modules only when present.
+def _maybe_add_hiddenimport(mod: str) -> None:
+    try:
+        if importlib.util.find_spec(mod) is not None:
+            hiddenimports.append(mod)
+    except Exception:
+        pass
+
+_maybe_add_hiddenimport('onnxruntime.capi.onnxruntime_providers_cuda')
+_maybe_add_hiddenimport('onnxruntime.capi.onnxruntime_providers_tensorrt')
+_maybe_add_hiddenimport('onnxruntime.capi.onnxruntime_providers_shared')
 
 # Add project data files
 # Note: models directory is excluded and handled separately by CI

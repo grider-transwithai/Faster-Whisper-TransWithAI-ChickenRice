@@ -20,7 +20,7 @@ on:
 
 jobs:
   build-windows:
-    name: Build Windows - CUDA ${{ matrix.cuda }} ${{ matrix.model_variant }}
+    name: Build Windows - ${{ matrix.build_label }} ${{ matrix.model_variant }}
     runs-on: windows-latest
     defaults:
       run:
@@ -29,44 +29,179 @@ jobs:
       matrix:
         include:
           # CUDA 11.8 versions
-          - cuda: "11.8"
+          - accel: "cuda"
+            build_label: "CUDA 11.8"
+            cuda: "11.8"
             env_file: "environment-cuda118.yml"
             env_name: "faster-whisper-cu118"
             artifact_suffix: "cu118"
             model_variant: "base"
             hf_model: ""
-          - cuda: "11.8"
+            rocm_family: ""
+            ctranslate2_wheel_url: ""
+            rocm_sdk_core_url: ""
+            rocm_sdk_libraries_url: ""
+          - accel: "cuda"
+            build_label: "CUDA 11.8"
+            cuda: "11.8"
             env_file: "environment-cuda118.yml"
             env_name: "faster-whisper-cu118"
             artifact_suffix: "cu118-chickenrice"
             model_variant: "chickenrice"
             hf_model: "--hf-model chickenrice0721/whisper-large-v2-translate-zh-v0.2-st-ct2"
+            rocm_family: ""
+            ctranslate2_wheel_url: ""
+            rocm_sdk_core_url: ""
+            rocm_sdk_libraries_url: ""
           # CUDA 12.2 versions
-          - cuda: "12.2"
+          - accel: "cuda"
+            build_label: "CUDA 12.2"
+            cuda: "12.2"
             env_file: "environment-cuda122.yml"
             env_name: "faster-whisper-cu122"
             artifact_suffix: "cu122"
             model_variant: "base"
             hf_model: ""
-          - cuda: "12.2"
+            rocm_family: ""
+            ctranslate2_wheel_url: ""
+            rocm_sdk_core_url: ""
+            rocm_sdk_libraries_url: ""
+          - accel: "cuda"
+            build_label: "CUDA 12.2"
+            cuda: "12.2"
             env_file: "environment-cuda122.yml"
             env_name: "faster-whisper-cu122"
             artifact_suffix: "cu122-chickenrice"
             model_variant: "chickenrice"
             hf_model: "--hf-model chickenrice0721/whisper-large-v2-translate-zh-v0.2-st-ct2"
+            rocm_family: ""
+            ctranslate2_wheel_url: ""
+            rocm_sdk_core_url: ""
+            rocm_sdk_libraries_url: ""
           # CUDA 12.8 versions
-          - cuda: "12.8"
+          - accel: "cuda"
+            build_label: "CUDA 12.8"
+            cuda: "12.8"
             env_file: "environment-cuda128.yml"
             env_name: "faster-whisper-cu128"
             artifact_suffix: "cu128"
             model_variant: "base"
             hf_model: ""
-          - cuda: "12.8"
+            rocm_family: ""
+            ctranslate2_wheel_url: ""
+            rocm_sdk_core_url: ""
+            rocm_sdk_libraries_url: ""
+          - accel: "cuda"
+            build_label: "CUDA 12.8"
+            cuda: "12.8"
             env_file: "environment-cuda128.yml"
             env_name: "faster-whisper-cu128"
             artifact_suffix: "cu128-chickenrice"
             model_variant: "chickenrice"
             hf_model: "--hf-model chickenrice0721/whisper-large-v2-translate-zh-v0.2-st-ct2"
+
+            rocm_family: ""
+            ctranslate2_wheel_url: ""
+            rocm_sdk_core_url: ""
+            rocm_sdk_libraries_url: ""
+
+          # AMD ROCm/HIP (one ZIP per target family)
+          - accel: "rocm"
+            build_label: "AMD gfx101X-dgpu"
+            cuda: "rocm"
+            rocm_family: "gfx101X-dgpu"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx101x_dgpu"
+            model_variant: "base"
+            hf_model: ""
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx101X-dgpu/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx101X-dgpu/rocm_sdk_libraries_gfx101x_dgpu-7.12.0a20260224-py3-none-win_amd64.whl"
+          - accel: "rocm"
+            build_label: "AMD gfx101X-dgpu"
+            cuda: "rocm"
+            rocm_family: "gfx101X-dgpu"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx101x_dgpu-chickenrice"
+            model_variant: "chickenrice"
+            hf_model: "--hf-model chickenrice0721/whisper-large-v2-translate-zh-v0.2-st-ct2"
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx101X-dgpu/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx101X-dgpu/rocm_sdk_libraries_gfx101x_dgpu-7.12.0a20260224-py3-none-win_amd64.whl"
+          - accel: "rocm"
+            build_label: "AMD gfx103X-dgpu"
+            cuda: "rocm"
+            rocm_family: "gfx103X-dgpu"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx103x_dgpu"
+            model_variant: "base"
+            hf_model: ""
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx103X-dgpu/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx103X-dgpu/rocm_sdk_libraries_gfx103x_dgpu-7.12.0a20260224-py3-none-win_amd64.whl"
+          - accel: "rocm"
+            build_label: "AMD gfx103X-dgpu"
+            cuda: "rocm"
+            rocm_family: "gfx103X-dgpu"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx103x_dgpu-chickenrice"
+            model_variant: "chickenrice"
+            hf_model: "--hf-model chickenrice0721/whisper-large-v2-translate-zh-v0.2-st-ct2"
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx103X-dgpu/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx103X-dgpu/rocm_sdk_libraries_gfx103x_dgpu-7.12.0a20260224-py3-none-win_amd64.whl"
+          - accel: "rocm"
+            build_label: "AMD gfx110X-all"
+            cuda: "rocm"
+            rocm_family: "gfx110X-all"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx110x_all"
+            model_variant: "base"
+            hf_model: ""
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx110X-all/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx110X-all/rocm_sdk_libraries_gfx110x_all-7.12.0a20260224-py3-none-win_amd64.whl"
+          - accel: "rocm"
+            build_label: "AMD gfx110X-all"
+            cuda: "rocm"
+            rocm_family: "gfx110X-all"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx110x_all-chickenrice"
+            model_variant: "chickenrice"
+            hf_model: "--hf-model chickenrice0721/whisper-large-v2-translate-zh-v0.2-st-ct2"
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx110X-all/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx110X-all/rocm_sdk_libraries_gfx110x_all-7.12.0a20260224-py3-none-win_amd64.whl"
+          - accel: "rocm"
+            build_label: "AMD gfx120X-all"
+            cuda: "rocm"
+            rocm_family: "gfx120X-all"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx120x_all"
+            model_variant: "base"
+            hf_model: ""
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx120X-all/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx120X-all/rocm_sdk_libraries_gfx120x_all-7.12.0a20260224-py3-none-win_amd64.whl"
+          - accel: "rocm"
+            build_label: "AMD gfx120X-all"
+            cuda: "rocm"
+            rocm_family: "gfx120X-all"
+            env_file: "environment-rocm.yml"
+            env_name: "faster-whisper-rocm"
+            artifact_suffix: "amd_gfx120x_all-chickenrice"
+            model_variant: "chickenrice"
+            hf_model: "--hf-model chickenrice0721/whisper-large-v2-translate-zh-v0.2-st-ct2"
+            ctranslate2_wheel_url: "https://github.com/TransWithAI/CTranslate2/releases/download/v4.7.2/ctranslate2-4.7.1-cp310-cp310-win_amd64.whl"
+            rocm_sdk_core_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx120X-all/rocm_sdk_core-7.12.0a20260224-py3-none-win_amd64.whl"
+            rocm_sdk_libraries_url: "https://d2awnip2yjpvqn.cloudfront.net/v2/gfx120X-all/rocm_sdk_libraries_gfx120x_all-7.12.0a20260224-py3-none-win_amd64.whl"
 
     steps:
     - name: Checkout code
@@ -108,15 +243,29 @@ jobs:
         pkgs-dirs: ~/conda_pkgs_dir
         python-version: "3.10"
 
+    - name: Install ROCm SDK wheels (AMD)
+      if: matrix.accel == 'rocm'
+      run: |
+        echo "Installing ROCm runtime wheels for ${{ matrix.rocm_family }}..."
+        python -m pip install "${{ matrix.rocm_sdk_core_url }}" "${{ matrix.rocm_sdk_libraries_url }}"
+
+    - name: Install HIP-enabled CTranslate2 wheel (AMD)
+      if: matrix.accel == 'rocm'
+      run: |
+        echo "Installing HIP-enabled ctranslate2 wheel from: ${{ matrix.ctranslate2_wheel_url }}"
+        python -m pip install --force-reinstall "${{ matrix.ctranslate2_wheel_url }}"
+        python -c "import importlib.metadata as md; print(f'CTranslate2 version: {md.version(\"ctranslate2\")}')"
+
     - name: Force reinstall ctranslate2 for CUDA 11.8
-      if: matrix.cuda == '11.8'
+      if: matrix.accel == 'cuda' && matrix.cuda == '11.8'
       run: |
         echo "Force reinstalling ctranslate2==3.24.0 for CUDA 11.8 compatibility..."
-        pip install --force-reinstall ctranslate2==3.24.0 numpy==1.26.4
+        pip install --force-reinstall --no-deps ctranslate2==3.24.0 numpy==1.26.4
         echo "ctranslate2 reinstalled successfully"
-        python -c "import ctranslate2; print(f'CTranslate2 version: {ctranslate2.__version__}')"
+        python -c "import importlib.metadata as md; print(f'CTranslate2 version: {md.version(\"ctranslate2\")}')"
 
     - name: Fix onnxruntime CPU/GPU conflict
+      if: matrix.accel == 'cuda'
       run: |
         echo "Removing onnxruntime CPU version to avoid conflicts..."
         pip uninstall onnxruntime -y || true
@@ -140,7 +289,7 @@ jobs:
       run: |
         echo "Applying batch transcribe patch to faster-whisper package..."
         # Find the faster-whisper package installation directory
-        FASTER_WHISPER_PATH=$(python -c "import faster_whisper; import os; print(os.path.dirname(faster_whisper.__file__))")
+        FASTER_WHISPER_PATH=$(python -c "import importlib.util, os; spec = importlib.util.find_spec('faster_whisper'); print(os.path.dirname(spec.origin))")
         echo "faster-whisper package location: $FASTER_WHISPER_PATH"
 
         # Verify the transcribe.py file exists
@@ -209,8 +358,8 @@ jobs:
         conda info
         conda list
         python --version
-        python -c "import ctranslate2; print(f'CTranslate2 version: {ctranslate2.__version__}')"
-        echo "Note: CUDA availability check skipped (no GPU on GitHub runners)"
+        python -c "import importlib.metadata as md; print(f'CTranslate2 version: {md.version(\"ctranslate2\")}')"
+        echo "Note: GPU availability check skipped (no GPU on GitHub runners)"
 
     - name: Check cached models
       run: |
@@ -688,4 +837,252 @@ jobs:
         repository: ${{ github.repository }}
         tag_name: ${{ github.ref }}
         files: faster_whisper_transwithai_windows_cu128-chickenrice.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx101x:
+    name: Upload AMD gfx101X Base
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx101x_dgpu
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx101X base variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx101x_dgpu.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx101x_dgpu.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx101x_dgpu.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx101x-chickenrice:
+    name: Upload AMD gfx101X Chickenrice
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx101x_dgpu-chickenrice
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx101X chickenrice variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx101x_dgpu-chickenrice.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx101x_dgpu-chickenrice.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx101x_dgpu-chickenrice.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx103x:
+    name: Upload AMD gfx103X Base
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx103x_dgpu
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx103X base variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx103x_dgpu.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx103x_dgpu.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx103x_dgpu.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx103x-chickenrice:
+    name: Upload AMD gfx103X Chickenrice
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx103x_dgpu-chickenrice
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx103X chickenrice variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx103x_dgpu-chickenrice.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx103x_dgpu-chickenrice.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx103x_dgpu-chickenrice.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx110x:
+    name: Upload AMD gfx110X Base
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx110x_all
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx110X base variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx110x_all.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx110x_all.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx110x_all.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx110x-chickenrice:
+    name: Upload AMD gfx110X Chickenrice
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx110x_all-chickenrice
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx110X chickenrice variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx110x_all-chickenrice.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx110x_all-chickenrice.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx110x_all-chickenrice.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx120x:
+    name: Upload AMD gfx120X Base
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx120x_all
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx120X base variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx120x_all.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx120x_all.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx120x_all.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-amd-gfx120x-chickenrice:
+    name: Upload AMD gfx120X Chickenrice
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: faster_whisper_transwithai_windows_amd_gfx120x_all-chickenrice
+        path: artifact/
+
+    - name: Create archive with optimized compression
+      run: |
+        cd artifact
+        echo "Creating archive for AMD gfx120X chickenrice variant..."
+        zip -5 -r -q ../faster_whisper_transwithai_windows_amd_gfx120x_all-chickenrice.zip .
+        cd ..
+        echo "Archive created: $(ls -lh faster_whisper_transwithai_windows_amd_gfx120x_all-chickenrice.zip | awk '{print $5}')"
+
+    - name: Upload to release with large file support
+      uses: ading2210/gh-large-releases@v1
+      with:
+        repository: ${{ github.repository }}
+        tag_name: ${{ github.ref }}
+        files: faster_whisper_transwithai_windows_amd_gfx120x_all-chickenrice.zip
         token: ${{ secrets.GITHUB_TOKEN }}

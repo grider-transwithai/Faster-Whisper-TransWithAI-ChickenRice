@@ -60,6 +60,56 @@ High-performance audio/video transcription and translation tool - Japanese-to-Ch
 | RTX 40系列 | CUDA 12.2 或 12.8 |
 | RTX 50系列 | **必须使用 CUDA 12.8** |
 
+### AMD 显卡（ROCm/HIP）/ AMD GPU (ROCm/HIP)
+
+如果您是 AMD 显卡用户（Windows）：请下载带有 `amd_gfx***` 后缀的版本（每个 ZIP 对应一类 `gfx` 架构）。
+AMD 版本会把 ROCm/HIP 运行时 DLL 一并打包进 ZIP，一般不需要单独安装 ROCm。
+
+Not sure which AMD package to download? Pick the ZIP by your GPU family (each ZIP targets a `gfx` family).
+The AMD builds bundle ROCm/HIP runtime DLLs inside the ZIP (no separate ROCm install in most cases).
+
+| 你的显卡 / Your GPU | 下载后缀 / Suffix | 适用范围（大致）/ Rough coverage |
+|---|---|---|
+| RX 5000 / RDNA1 | `amd_gfx101x_dgpu` | `gfx1010/gfx1011/gfx1012` |
+| RX 6000 / RDNA2 | `amd_gfx103x_dgpu` | `gfx1030/gfx1031/gfx1032/gfx1034` |
+| RX 7000 / RDNA3 | `amd_gfx110x_all` | `gfx1100/gfx1101/gfx1102`（部分 iGPU 为 `gfx1103`） |
+| RX 9000 / RDNA4 | `amd_gfx120x_all` | `gfx1200/gfx1201` |
+
+不知道自己是什么显卡？/ Don't know your GPU model?
+- Windows：打开“任务管理器 -> 性能 -> GPU”或“设备管理器 -> 显示适配器”
+- Windows: open "Task Manager -> Performance -> GPU" or "Device Manager -> Display adapters"
+
+**快速自查 / Quick checklist**
+
+- RX 5300 / RX 5500 / RX 5600 / RX 5700 系列 -> `amd_gfx101x_dgpu`
+- RX 6400 / RX 6500 XT / RX 6600 / RX 6700 / RX 6800 / RX 6900 系列 -> `amd_gfx103x_dgpu`
+- RX 7600 / RX 7700 XT / RX 7800 XT / RX 7900 系列 -> `amd_gfx110x_all`
+- RX 9060 / RX 9060 XT / RX 9070（含 GRE/XT）-> `amd_gfx120x_all`
+- iGPU：Radeon 890M (`gfx1150`) / Radeon 8060S (`gfx1151`) / Radeon 860M (`gfx1152`) / 任何 `gfx115x` -> 暂不提供对应版本（请用 CPU 版或 Modal 云端推理）
+
+**完整型号列表（按系列）/ Full model lists (by series)**
+
+- RX 5000 (RDNA1) -> `amd_gfx101x_dgpu`
+  - Desktop: RX 5300, RX 5300 XT, RX 5500, RX 5500 XT, RX 5600, RX 5600 XT, RX 5700, RX 5700 XT (incl. 50th Anniversary Edition)
+  - Mobile dGPU: RX 5300M, RX 5500M, RX 5600M, RX 5700M
+
+- RX 6000 (RDNA2) -> `amd_gfx103x_dgpu`
+  - Desktop: RX 6300 (OEM), RX 6400, RX 6500 XT, RX 6600, RX 6600 XT, RX 6650 XT, RX 6700, RX 6700 XT, RX 6750 GRE, RX 6750 XT, RX 6800, RX 6800 XT, RX 6900 XT, RX 6950 XT
+  - Mobile dGPU: RX 6300M, RX 6450M, RX 6500M, RX 6550S, RX 6550M, RX 6600S, RX 6600M, RX 6650M, RX 6650M XT, RX 6700S, RX 6700M, RX 6800S, RX 6800M, RX 6850M XT
+
+- RX 7000 (RDNA3) -> `amd_gfx110x_all`
+  - Desktop: RX 7400 (OEM), RX 7600, RX 7600 XT, RX 7650 GRE, RX 7700 (OEM), RX 7700 XT, RX 7800 XT, RX 7900 GRE, RX 7900 XT, RX 7900 XTX
+  - Mobile dGPU: RX 7600S, RX 7600M XT, RX 7700S, RX 7800M, RX 7900M
+
+- RX 9000 (RDNA4) -> `amd_gfx120x_all`
+  - Desktop: RX 9060, RX 9060 XT, RX 9070 GRE, RX 9070, RX 9070 XT
+
+使用方式与 NVIDIA 版本相同，仍然运行 `运行(GPU).bat`（内部依旧使用 `--device=cuda`，这是 CTranslate2 HIP 的约定）。
+命令行也可以使用 `--device=amd`（等同于 `--device=cuda`）。
+
+Usage is the same as NVIDIA builds: run `运行(GPU).bat` (it still passes `--device=cuda`, which is CTranslate2's HIP convention).
+CLI can also use `--device=amd` (alias of `--device=cuda`).
+
 ### 2. 下载对应版本 / Download
 
 从 [Releases](https://github.com/TransWithAI/Faster-Whisper-TransWithAI-ChickenRice/releases) 页面下载对应版本

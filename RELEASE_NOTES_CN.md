@@ -35,7 +35,7 @@
 
 ### 📌 文件命名规则
 
-| 文件名后缀 | CUDA版本 | 模型类型 |
+| 文件名后缀 | CUDA/ROCm | 模型类型 |
 |-----------|---------|---------|
 | `*_cu118.zip` | CUDA 11.8 | 基础版 |
 | `*_cu118-chickenrice.zip` | CUDA 11.8 | 海南鸡版 |
@@ -43,6 +43,17 @@
 | `*_cu122-chickenrice.zip` | CUDA 12.2 | 海南鸡版 |
 | `*_cu128.zip` | CUDA 12.8 | 基础版 |
 | `*_cu128-chickenrice.zip` | CUDA 12.8 | 海南鸡版 |
+| `*_amd_gfx101x_dgpu.zip` | AMD ROCm/HIP (gfx101X) | 基础版 |
+| `*_amd_gfx101x_dgpu-chickenrice.zip` | AMD ROCm/HIP (gfx101X) | 海南鸡版 |
+| `*_amd_gfx103x_dgpu.zip` | AMD ROCm/HIP (gfx103X) | 基础版 |
+| `*_amd_gfx103x_dgpu-chickenrice.zip` | AMD ROCm/HIP (gfx103X) | 海南鸡版 |
+| `*_amd_gfx110x_all.zip` | AMD ROCm/HIP (gfx110X) | 基础版 |
+| `*_amd_gfx110x_all-chickenrice.zip` | AMD ROCm/HIP (gfx110X) | 海南鸡版 |
+| `*_amd_gfx120x_all.zip` | AMD ROCm/HIP (gfx120X) | 基础版 |
+| `*_amd_gfx120x_all-chickenrice.zip` | AMD ROCm/HIP (gfx120X) | 海南鸡版 |
+
+> AMD 版本仍然使用 `--device=cuda`（这是 CTranslate2 在 HIP/ROCm 后端下的公开 API 约定）。
+> 暂不提供 `gfx115x` iGPU/mobile 版本。
 
 ---
 
